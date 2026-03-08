@@ -1,0 +1,42 @@
+name: Sync with upstream Equibop
+
+on:
+    schedule:
+        - cron: "0 */6 * * *"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    sync:
+        name: Sync upstream
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Add upstream remote
+              run: git remote add upstream https://github.com/Equicord/Equibop.git || true
+
+            - name: Fetch upstream
+              run: git fetch upstream main
+
+            - name: Check for changes
+              id: check
+              run: |
+                  if git diff --quiet HEAD upstream/main; then
+                    echo "changed=false" >> $GITHUB_OUTPUT
+                  else
+                    echo "changed=true" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Merge upstream
+              if: steps.check.outputs.changed == 'true'
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git merge upstream/main --no-edit
+                  git push origin main
