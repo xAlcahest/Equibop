@@ -22,7 +22,7 @@ jobs:
               run: git remote add upstream https://github.com/Equicord/Equibop.git || true
 
             - name: Fetch upstream
-              run: git fetch upstream main
+              run: git fetch upstream main --tags
 
             - name: Check for changes
               id: check
@@ -40,3 +40,6 @@ jobs:
                   git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
                   git merge upstream/main --no-edit
                   git push origin main
+
+            - name: Push upstream tags
+              run: git push origin --tags
